@@ -1,0 +1,54 @@
+#!/usr/bin/env php
+<?php
+
+define('BASE', dirname(__FILE__) . '/');
+
+// check for parameters
+array_shift($argv);
+if (!isset($argv[0])) {
+    usage();
+    exit(1);
+}
+
+// check if passed parameters are valid
+if (!in_array($command = array_shift($argv), array('-u', '-s'))) {
+    echo(sprintf('create: illegal option -- %s', str_replace('-', '', $command)) . PHP_EOL);
+    usage();
+    exit(1);
+}
+
+// set username
+$username = $argv[0];
+
+// set moduleName
+$moduleName = ucfirst($argv[1]);
+
+// set preprocessor
+$preprocessor = '.css';
+
+// load js template and replace placeholders
+$templates['js'] = str_replace('{{moduleName}}', $moduleName, str_replace('{{username}}', $username, file_get_contents(BASE . '/library/micro/create/template.js.tpl')));
+$templates['css'] = str_replace('{{moduleName}}', strtolower($moduleName), file_get_contents(BASE . '/library/micro/create/template.css.tpl'));
+$templates['html'] = file_get_contents(BASE . '/library/micro/create/template.html.tpl');
+
+$moduleDirectory = BASE . '/modules/' . ucfirst($moduleName);
+if (file_exists($moduleDirectory)) {
+    echo(sprintf("create: %s: module exists", $moduleName) . PHP_EOL);
+    exit(1);
+}
+
+mkdir($moduleDirectory, 0755, true);
+mkdir($moduleDirectory . '/js', 0755, true);
+file_put_contents($moduleDirectory . '/js/' . strtolower($moduleName) . '.js', $templates['js']);
+mkdir($moduleDirectory . '/css', 0755, true);
+file_put_contents($moduleDirectory . '/css/' . strtolower($moduleName) . $preprocessor, $templates['css']);
+file_put_contents($moduleDirectory . '/' . strtolower($moduleName) . '.html', $templates['html']);
+
+function usage() {
+    echo(<<<EOF
+usage: create [-s skinname] [-p preprocessor] -u username modulename
+
+EOF
+    );
+    exit(1);
+}
