@@ -36,6 +36,17 @@ Additional content templates are created directly in the module folder.
     
     /Example/example-second.html
 
+###Command Line Tool
+Create new modules or skins on the fly:
+
+    create -u "User Name" -p less modulename
+
+To add a skin to an existing module use
+
+    create -s skinname -u "User Name" -p scss modulename
+
+If you don't pass the preprocessor parameter (-p), create assumes you want to generate a css file.
+
 Creating pages
 ==============
 
